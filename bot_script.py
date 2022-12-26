@@ -6,7 +6,7 @@ import picamera
 import cv2
 
 
-
+#Setting up DC motors on RaspBerry Pi
 GPIO.setmode(GPIO.BCM)
 GPIO.setup([23,24,27,22,5,6],GPIO.OUT)
 GPIO.setwarnings(False)
