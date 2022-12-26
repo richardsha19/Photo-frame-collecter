@@ -16,14 +16,20 @@ p12 = GPIO.PWM(5,50)
 p13 = GPIO.PWM(6,50)
 
 def main():
+    #Starting from a known distance
     KNOWN_DISTANCE = 30.0
     KNOWN_WIDTH = 2.76
+    LEFT_CAMERA_SENSOR = 295
+    RIGHT_CAMERA_SENSOR = 345
+    
+    #Setting to arbitrary large value
     Current_distance = 100000000.00
     centered = False
     moving = False
     
     ref = cv2.imread("Face2_189x302.jpg")
     
+    #Setting up the picamera
     camera = picamera.PiCamera()
     camera.resolution = (640, 480)
     camera.framerate = 32
@@ -31,7 +37,8 @@ def main():
     time.sleep(0.1)
     
     font = cv2.FONT_HERSHEY_SIMPLEX
-
+    
+    #Sets up the face detector
     face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
     # Find face from reference image
@@ -40,7 +47,7 @@ def main():
 
     # Calculate focal length of camera using equation
     focalLength = faces[0][2] * KNOWN_DISTANCE / KNOWN_WIDTH
-    # Same as before
+    # 
     for f in camera.capture_continuous(capture, format = "bgr", use_video_port = True):
         frame = f.array
         cv2.imshow('frame', frame)
@@ -57,50 +64,51 @@ def main():
             
             Current_distance = getDist(KNOWN_WIDTH, focalLength, w)
             
-            if x < 295 and moving == False:
-                print("Left")
-            if x > 345 and moving == False:
-                print("Right")
-                
-            
-            if(x > 295 and x < 345):
+            #Determines if the Raspberry Pi should be moving left, right or center based on the position of the image in the camera feed
+            if x < LEFT_CAMERA_SENSOR and moving == False:
+                Move("Left")
+                moving = True
+            if x > RIGHT_CAMERA_SENSOR and moving == False:
+                Move("Right")
+                moving = True
+               
+            #If the image is centered on the camera, have the Raspberry Pi move forward
+            if(x >= LEFT_CAMERA_SENSOR and x <= RIGHT_CAMERA_SENSOR):
                 centered = True
                 if(moving == True):
                     moving = False
-                
+            #If the image is closed enough (Current_distance <= 32, then the Raspberry Pi is close enough to the picture to pick it up)
             if centered == True and Current_distance > 32.0:
                 move("Forward")
                 moving = True
             else:
-                print("Stop")
                 moving = False
                 move("Stop")
             
             GPIO.cleanup()
-                        # Puts text on the image indicating the estimated distance from the object
+            # Puts text on the camera frame indicating the estimated distance from the object
             cv2.putText(frame, str(getDist(KNOWN_WIDTH, focalLength, w)) + " in", (20, 40), font, 1, (0, 255, 255), 2, cv2.LINE_4)
 
-        # Same as before
+        # To show the camera frame onto the screen
         cv2.imshow('frame', frame)
 
-        # Same as before
+        # Trunctes the feed (Now that the program is out of the loop)
         capture.truncate(0);
 
-        # Same as before
+        # Automatically stops the Raspberry Pi if q is pressed
         key = cv2.waitKey(1)
         if key == ord("q"):
             break
 
     GPIO.cleanup()
-        # Same as before
     cv2.destroyAllWindows()
 
 # Calculates estimated distance using the equation from before
 def getDist(knownWidth, focalLength, perWidth):
     return (knownWidth * focalLength) / perWidth
 
+# Directs the DC motors to move
 def move(direction):
-    #while(direction != "Stop"):
     if(direction == "Forward"):
         print("Forward")
         GPIO.output(27,GPIO.HIGH)
@@ -125,8 +133,6 @@ def move(direction):
         GPIO.output(6,GPIO.HIGH)
         p11.start(30)
         p13.start(30)
-        
-
     if(direction == "Stop"):
         print("STOP")
         p10.stop()
