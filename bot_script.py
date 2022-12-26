@@ -57,26 +57,15 @@ def main():
             
             Current_distance = getDist(KNOWN_WIDTH, focalLength, w)
             
-            print(x)
-            print(y)
-            #print(w)
-            #print(h)
-            print()
-            
             if x < 295 and moving == False:
                 print("Left")
-                #move("Left")
-                #moving = True
             if x > 345 and moving == False:
                 print("Right")
-                #move("Right")
-                #moving = True
                 
             
             if(x > 295 and x < 345):
                 centered = True
                 if(moving == True):
-                    #move("Stop")
                     moving = False
                 
             if centered == True and Current_distance > 32.0:
@@ -118,29 +107,24 @@ def move(direction):
         GPIO.output(5,GPIO.HIGH)
         p10.start(30)
         p13.start(30)
-        #GPIO.cleanup()
     if(direction == "Backward"):
         print("Backward")
         GPIO.output(22,GPIO.HIGH)
         GPIO.output(6,GPIO.HIGH)
         p11.start(30)
         p12.start(30)
-        #GPIO.cleanup()
     if(direction == "Right"):
         print("Right")
         GPIO.output(22,GPIO.HIGH)
         GPIO.output(5,GPIO.HIGH)
         p10.start(30)
         p12.start(30)
-        #GPIO.cleanup()
     if(direction == "Left"):
         print("Left")
         GPIO.output(27,GPIO.HIGH)
         GPIO.output(6,GPIO.HIGH)
         p11.start(30)
         p13.start(30)
-        #GPIO.cleanup()
-    #direction = input("Enter Direction")
         
 
     if(direction == "Stop"):
