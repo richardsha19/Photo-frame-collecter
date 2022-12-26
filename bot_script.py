@@ -6,7 +6,7 @@ import picamera
 import cv2
 
 
-#Setting up DC motors on RaspBerry Pi
+#Setting up DC motors on RaspBerry Pi based on GPIO pins
 GPIO.setmode(GPIO.BCM)
 GPIO.setup([23,24,27,22,5,6],GPIO.OUT)
 GPIO.setwarnings(False)
@@ -22,8 +22,8 @@ def main():
     LEFT_CAMERA_SENSOR = 295
     RIGHT_CAMERA_SENSOR = 345
     
-    #Setting to arbitrary large value
-    Current_distance = 100000000.00
+    #Setting current_distance, centered, and moving variables
+    Current_distance = 30.00
     centered = False
     moving = False
     
@@ -47,18 +47,19 @@ def main():
 
     # Calculate focal length of camera using equation
     focalLength = faces[0][2] * KNOWN_DISTANCE / KNOWN_WIDTH
-    # 
+    
     for f in camera.capture_continuous(capture, format = "bgr", use_video_port = True):
         frame = f.array
+        #Displays the camera feed in a frame
         cv2.imshow('frame', frame)
 
-        # Same as before
+        # Converts the camera feed to grayscale because many functions in OpenCV expects Grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # Same as before
+        # Gets the location and the size of the face from the camera
         faces = face_detector.detectMultiScale(gray, 1.1, 4)
 
-        # Same as before
+        # Uses the x,y,w,h parameters in faces
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
             
@@ -103,38 +104,33 @@ def main():
     GPIO.cleanup()
     cv2.destroyAllWindows()
 
-# Calculates estimated distance using the equation from before
+# Calculates estimated distance using an equation based on focal lenght
 def getDist(knownWidth, focalLength, perWidth):
     return (knownWidth * focalLength) / perWidth
 
 # Directs the DC motors to move
 def move(direction):
     if(direction == "Forward"):
-        print("Forward")
         GPIO.output(27,GPIO.HIGH)
         GPIO.output(5,GPIO.HIGH)
         p10.start(30)
         p13.start(30)
     if(direction == "Backward"):
-        print("Backward")
         GPIO.output(22,GPIO.HIGH)
         GPIO.output(6,GPIO.HIGH)
         p11.start(30)
         p12.start(30)
     if(direction == "Right"):
-        print("Right")
         GPIO.output(22,GPIO.HIGH)
         GPIO.output(5,GPIO.HIGH)
         p10.start(30)
         p12.start(30)
     if(direction == "Left"):
-        print("Left")
         GPIO.output(27,GPIO.HIGH)
         GPIO.output(6,GPIO.HIGH)
         p11.start(30)
         p13.start(30)
     if(direction == "Stop"):
-        print("STOP")
         p10.stop()
         p11.stop()
         p12.stop()
