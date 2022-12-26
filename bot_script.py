@@ -22,7 +22,7 @@ def main():
     centered = False
     moving = False
     
-    ref = cv2.imread("/home/pi/Desktop/Face2_189x302.jpg")
+    ref = cv2.imread("Face2_189x302.jpg")
     
     camera = picamera.PiCamera()
     camera.resolution = (640, 480)
