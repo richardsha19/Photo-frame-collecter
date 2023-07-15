@@ -5,6 +5,6 @@ Built using a Raspberry Pi and programmed through Python, the robot identifies a
 - OpenCV: Open source library that uses machine vision. Installation: `pip install opencv-python-headless`.
 - GPIO: Library used to control GPIO (the computer board) and various DC, servo motors on the Raspberry Pi. Installation: `pip install RPi.GPIO`.
 
-Example of the robot working
+Example of the robot working (Open in new tab):
 https://github.com/richardsha19/Photo-frame-collector/assets/113735719/92af663a-abd8-4391-b5bf-294a7624cda5
 
